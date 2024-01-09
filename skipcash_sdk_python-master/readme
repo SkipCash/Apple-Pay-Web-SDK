@@ -1,0 +1,9 @@
+Install Python
+Install uvicorn
+
+pip install fastapi
+pip install pycryptodome
+pip install multipart
+pip install requests_pkcs12
+
+Command To run server: uvicorn main:app --reload
