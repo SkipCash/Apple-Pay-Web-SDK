@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous" />
+
+    <title>Hello, world!</title>
+    <style>
+        .apple-pay-button {
+            width: 150px;
+            height: 50px;
+            display: none;
+            border-radius: 5px;
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 20px;
+            background-image: -webkit-named-image(apple-pay-logo-white);
+            background-position: 50% 50%;
+            background-color: black;
+            background-size: 60%;
+            background-repeat: no-repeat;
+        }
+    </style>
+</head>
+
+<body>
+<h1>Skipcash Payment Through SDK!</h1>
+<div>
+    <form>
+        <input type="text" placeholder="firstName" name="firstName" id="firstName">
+        <input type="hidden" placeholder="paymentId" name="paymentId" id="paymentId">
+
+        <input type="text" placeholder="lastName" name="lastName" id="lastName">
+        <input type="email" placeholder="email" name="email" id="email">
+        <input type="number" placeholder="amount" name="amount" id="amount">
+        <!-- <button type="button" onclick="createPayment()"> Submit</button> -->
+        <!-- <button type="button" class="apple-pay-button" id="applePay" style='display: none;'></button> -->
+        <div class='apple-pay-button' style='display:none'></div>
+    </form>
+    <p style="display:none" id="notgot">ApplePay is not available on this browser</p>
+
+    <!-- <apple-pay-button class="apple-pay-button" buttonstyle="black" type="buy" locale="el-GR">Buy Now</apple-pay-button> -->
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+<!-- <script src="https://applepay.cdn-apple.com/jsapi/v1/apple-pay-sdk.js"></script> -->
+<!-- <script src="https://code.jquery.com/jquery-3.7.0.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script> -->
+<script src="sdk.js"></script>
+
+<script>
+    // If Apple pay is supported by the browser, show the payment button. You can use the SkipCash SDK.
+    const appleButton = $(".apple-pay-button");
+    $('#firstName').hide();
+    $('#lastName').hide();
+    $('#email').hide();
+    const merchantIdentifier = "merchant.com.skipcash.appay";
+    $(document).ready(function () {
+        // alert("called");
+        skipcash.sdk.canPayWithApple(
+            merchantIdentifier,
+            function () {
+                appleButton.show();
+                // alert("hi");
+
+            },
+            function (errorCode) {
+                $('#notgot').show();
+
+                $('#amount').hide();
+
+                // alert("errorCode"+errorCode);
+                // optional implementation, the apple pay is not available
+            }
+        );
+    });
+
+    // Implement the Apple validation frontend call.
+    function validateSession(valURL, onSuccess, onError) {
+        return new Promise(function (onSuccess, onError) {
+            var xhr = new XMLHttpRequest();
+            xhr.onload = function () {
+                var data = JSON.parse(JSON.parse(this.responseText));
+                console.log("data: ",data);
+                onSuccess(data);
+            };
+            xhr.onerror = onError;
+            // xhr.open('get', 'appleValidation.php');
+            xhr.open('GET', 'https://skipcashpython.secretdemo.com/validateSession?u=' + valURL);
+
+
+            xhr.send();
+        });
+    }
+
+    //Implement the create payment frontend call
+    function createPayment(amount, onSuccess, onError) {
+        // alert("hi");
+        console.log("appleButtonappleButton111",amount);
+        var formData = $(this).serialize(); // Serialize form data
+        var amountValue = $("#amount").val(); // Get the value of the "amount" input
+
+        var settings = {
+            url: "https://skipcashpython.secretdemo.com/makePayment",
+            method: "POST",
+            // timeout: 0,
+            // headers: {
+            //   "Access-Control-Allow-Origin": "*",
+            //   "Content-Type": "application/json",
+            // },
+            data: {
+                formData: formData, // Existing form data
+                amount: amountValue
+            }
+            // data: JSON.stringify({
+            //   amount: $("#amount").val(),
+            //   // firstName: document.getElementById("firstName").value,
+            //   // lastName: document.getElementById("lastName").value,
+            //   // email: document.getElementById("email").value,
+            // }),
+        };
+
+        console.log("appleButtonappleButton222",settings);
+
+        $.ajax(settings)
+            .done(function (res) {
+                console.log("res:",res);
+                // var responseObj = $.parseJSON(res);
+                var responseObj = res;
+
+                // var responseObj = JSON.stringify(res);
+                console.log("responseObj.resultObj.id:", responseObj.resultObj.id);
+                // alert('createPayment'+JSON.stringify(responseObj));
+                onSuccess(responseObj.resultObj.id);
+
+                // if (responseObj && responseObj.resultObj) {
+                //   $("#paymentId").val(responseObj.resultObj.id);
+                //   onSuccess(responseObj.resultObj.id);
+                // } else {
+                //   if (onError != null) onError("Unable to create payment..");
+                // }
+            })
+            .fail(function (res) {
+                console.log("appleButtonappleButton333",res);
+                if (onerror != null) onError(res);
+            });
+    }
+    // $("#paymentId").hide();
+
+    //   Implement the pay functionality on the frontend using SkipCash SDK
+    $(document).ready(function () {
+
+        appleButton.click(async () => {
+            // alert("click")
+            amount = parseFloat($("#amount").val());
+            console.log("appleButtonappleButton",appleButton);
+            await skipcash.sdk.payWithApplePay(
+                {
+                    amount: amount,
+                    // paymentId: "870e5249-c8d5-444c-9061-4a28c832c001",
+                    sandbox: false, // or false for PROD environment
+                    onCreatePayment: createPayment,
+                    onValidateSession: validateSession
+                },
+                function () {
+                    alert('Payment was successfull');
+                },
+                function (res) {
+                    var responseObj = JSON.stringify(res);
+                    alert('Payment failed ' + responseObj);
+
+                });
+        });
+    });
+</script>
+</body>
+
+</html>
