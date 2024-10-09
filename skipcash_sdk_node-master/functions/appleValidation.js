@@ -44,12 +44,4 @@ const main = async (request, res) => {
   return res.send(JSON.stringify(responseText));
 };
 
-// main()
-//   .then((response) => {
-//     console.successResponse(response);
-//   })
-//   .catch((error) => {
-//     console.error(error);
-//   });
-
 module.exports = main;

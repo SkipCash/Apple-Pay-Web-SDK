@@ -15,158 +15,151 @@
 
     <title>Hello, world!</title>
     <style>
-      .apple-pay-button {  
-        width: 150px;  
-        height: 50px;  
-        display: none;   
-        border-radius: 5px;    
+      .apple-pay-button {
+        width: 150px;
+        height: 50px;
+        display: none;
+        border-radius: 5px;
         margin-left: auto;
         margin-right: auto;
         margin-top: 20px;
-        background-image: -webkit-named-image(apple-pay-logo-white); 
+        background-image: -webkit-named-image(apple-pay-logo-white);
         background-position: 50% 50%;
         background-color: black;
-        background-size: 60%; 
-        background-repeat: no-repeat;  
+        background-size: 60%;
+        background-repeat: no-repeat;
       }
-      </style>
+    </style>
   </head>
 
   <body>
     <h1>Skipcash Payment Through SDK!</h1>
     <div>
       <form>
-      <input type="text"    placeholder="firstName" name="firstName" id="firstName">
-      <input type="hidden"    placeholder="paymentId" name="paymentId" id="paymentId" >
+        <input
+          type="text"
+          placeholder="firstName"
+          name="firstName"
+          id="firstName"
+        />
+        <input
+          type="hidden"
+          placeholder="paymentId"
+          name="paymentId"
+          id="paymentId"
+        />
 
-      <input type="text"    placeholder="lastName" name="lastName" id="lastName">
-      <input type="email"   placeholder="email"  name="email" id="email">
-      <input type="number"  placeholder="amount" name="amount" id="amount">
-     
-    <div class='apple-pay-button' style='display:none'></div>
+        <input
+          type="text"
+          placeholder="lastName"
+          name="lastName"
+          id="lastName"
+        />
+        <input type="email" placeholder="email" name="email" id="email" />
+        <input type="number" placeholder="amount" name="amount" id="amount" />
+
+        <div class="apple-pay-button" style="display: none"></div>
       </form>
-    <p style="display:none" id="notgot">ApplePay is not available on this browser</p>
-
+      <p style="display: none" id="notgot">
+        ApplePay is not available on this browser
+      </p>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
     <script src="sdk.js" type="text/javascript"></script>
 
-
     <script>
-            // If Apple pay is supported by the browser, show the payment button. You can use the SkipCash SDK.
-            const appleButton = $(".apple-pay-button");
-            $('#firstName').hide();
-            $('#lastName').hide();
-            $('#email').hide();
-            const merchantIdentifier = "merchant.com.skipcash.appay";
-            $(document).ready(function () {
-              // alert("called");
-              skipcash.sdk.canPayWithApple(
-                merchantIdentifier,
-                function () {
-                  appleButton.show();
-                  // alert("hi");
-  
-                },
-                function (errorCode) {
-                  $('#notgot').show();
+      // If Apple pay is supported by the browser, show the payment button. You can use the SkipCash SDK.
+      const appleButton = $(".apple-pay-button");
+      $("#firstName").hide();
+      $("#lastName").hide();
+      $("#email").hide();
+      const merchantIdentifier = "your apple merchant id";
+      $(document).ready(function () {
+        // alert("called");
+        skipcash.sdk.canPayWithApple(
+          merchantIdentifier,
+          function () {
+            appleButton.show();
+            // alert("hi");
+          },
+          function (errorCode) {
+            $("#notgot").show();
 
-                  $('#amount').hide();
+            $("#amount").hide();
 
-                  // alert("errorCode"+errorCode);
-                  // optional implementation, the apple pay is not available
-                }
-              );
-            });
+            // alert("errorCode"+errorCode);
+            // optional implementation, the apple pay is not available
+          }
+        );
+      });
 
-            // Implement the Apple validation frontend call.
-            function validateSession(valURL,onSuccess, onError) {
-              return new Promise(function(onSuccess, onError) {
-                var xhr = new XMLHttpRequest();
-                xhr.onload = function() {
-                  var data = JSON.parse(this.responseText);
-                  console.log("data: ",data);
-                  onSuccess(data);
-                };
-                xhr.onerror = onError;
-                // xhr.open('get', 'appleValidation.php');
-			          xhr.open('GET', 'api/validateSession?u=' + valURL);
+      // Implement the Apple validation frontend call.
+      function validateSession(valURL, onSuccess, onError) {
+        return new Promise(function (onSuccess, onError) {
+          var xhr = new XMLHttpRequest();
+          xhr.onload = function () {
+            var data = JSON.parse(this.responseText);
+            console.log("data: ", data);
+            onSuccess(data);
+          };
+          xhr.onerror = onError;
+          // xhr.open('get', 'appleValidation.php');
+          xhr.open("GET", "api/validateSession?u=" + valURL);
 
-                xhr.send();
-              });
+          xhr.send();
+        });
+      }
+
+      //Implement the create payment frontend call
+      function createPayment(amount, onSuccess, onError) {
+        // alert("hi");
+        var formData = $(this).serialize(); // Serialize form data
+        var amountValue = $("#amount").val(); // Get the value of the "amount" input
+
+        var settings = {
+          url: "your backend url to make payment exmaple: /api/makePayment",
+          method: "POST",
+          data: {
+            formData: formData, // Existing form data
+            amount: amountValue,
+          },
+        };
+
+        $.ajax(settings)
+          .done(function (res) {
+            var responseObj = $.parseJSON(res);
+            console.log("responseObj.resultObj.id:", responseObj.resultObj.id);
+            onSuccess(responseObj.resultObj.id);
+          })
+          .fail(function (res) {
+            if (onerror != null) onError(res);
+          });
+      }
+      // $("#paymentId").hide();
+
+      //   Implement the pay functionality on the frontend using SkipCash SDK
+      $(document).ready(function () {
+        appleButton.click(async () => {
+          // alert("click")
+          amount = parseFloat($("#amount").val());
+          await skipcash.sdk.payWithApplePay(
+            {
+              amount: amount,
+              // paymentId: "870e5249-c8d5-444c-9061-4a28c832c001",
+              sandbox: false, // or false for PROD environment
+              onCreatePayment: createPayment,
+              onValidateSession: validateSession,
+            },
+            function () {
+              alert("Payment was successfull");
+            },
+            function (res) {
+              var responseObj = JSON.stringify(res);
+              alert("Payment failed " + responseObj);
             }
-            
-            //Implement the create payment frontend call
-            function createPayment(amount, onSuccess, onError) {
-              // alert("hi");
-              var formData = $(this).serialize(); // Serialize form data
-              var amountValue = $("#amount").val(); // Get the value of the "amount" input
-        
-              var settings = {
-                url: "https://skipcashnode.secretdemo.com/api/makePayment",
-                method: "POST",
-                // timeout: 0,
-                // headers: {
-                //   "Access-Control-Allow-Origin": "*",
-                //   "Content-Type": "application/json",
-                // },
-                data: {
-                  formData: formData, // Existing form data
-                  amount: amountValue
-                }
-                // data: JSON.stringify({
-                //   amount: $("#amount").val(),
-                //   // firstName: document.getElementById("firstName").value,
-                //   // lastName: document.getElementById("lastName").value,
-                //   // email: document.getElementById("email").value,
-                // }),
-              };
-
-              $.ajax(settings)
-                .done(function (res) {
-                  var responseObj = $.parseJSON(res);
-                  // var responseObj = JSON.stringify(res);
-                  console.log("responseObj.resultObj.id:",responseObj.resultObj.id);
-                  // alert('createPayment'+JSON.stringify(responseObj));
-                  onSuccess(responseObj.resultObj.id);
-                  
-                  // if (responseObj && responseObj.resultObj) {
-                  //   $("#paymentId").val(responseObj.resultObj.id);
-                  //   onSuccess(responseObj.resultObj.id);
-                  // } else {
-                  //   if (onError != null) onError("Unable to create payment..");
-                  // }
-                })
-                .fail(function (res) {
-                  if (onerror != null) onError(res);
-                });
-            }
-            // $("#paymentId").hide();
-
-            //   Implement the pay functionality on the frontend using SkipCash SDK
-            $(document).ready(function () { 
-              
-                appleButton.click(async () => {
-                  // alert("click")
-                    amount = parseFloat($("#amount").val());
-                    await skipcash.sdk.payWithApplePay(
-                      {
-                        amount: amount,
-                        // paymentId: "870e5249-c8d5-444c-9061-4a28c832c001",
-                        sandbox: false, // or false for PROD environment
-                        onCreatePayment: createPayment,
-                        onValidateSession: validateSession
-                      },
-                      function () {
-                      alert('Payment was successfull');
-                      },
-                      function (res) {
-                        var responseObj = JSON.stringify(res);
-                        alert('Payment failed '+responseObj);
-
-                      });
-                });
-            });
+          );
+        });
+      });
     </script>
   </body>
 </html>
