@@ -90,11 +90,11 @@ async def root(amount: Annotated[str, Form()]):
             "Uid": uid,
             "KeyId": config.validateSession["KeyId"],  # You need to define validate_session and populate it
             "Amount": amount,
-            "FirstName": "",
-            "LastName": "Gag",
-            "Phone": "",
-            "Email": "",
-            "TransactionId": uid,
+            "FirstName": "Customer First Name",
+            "LastName": "Customer Last Name",
+            "Phone": "Customer Phone Number",
+            "Email": "Customer Email",
+            "TransactionId": "order id",
         }
 
         data_string = json.dumps(data)

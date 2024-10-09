@@ -32,8 +32,8 @@ import java.util.UUID;
 public class ApiController {
 
     private static final String prodUrl = "https://api.skipcash.app"; // Replace with the actual production URL
-    private static final String keyId = "304e78fb-5c95-4d51-aa87-eda492adbcc5"; // Replace with your key ID
-    private static final String keySecret = "LyNP+mMyiTwvn/kTth4ri1RTq9Z8yyz7CZ7dsUu7zzVaXd+vDerkduWSc2FOvAdBQo9h+CVQtdIKLUwbSqQucqz+YuEpVgXeQgWZhFaAZxCxgsBnQl7joV6p9+ntgjHIlQGAj8d6g3AksAnWP6gm0htW4CX8RyVko13QZoS9PblorkgkH4qoYH1weDxwvHb70SiuM8ev22vcX1SZbMnYTFDzzB0u6yxHNSV447oAypeOvdEXd96EACjp9Y61PKCPzlT1aUP/4oDlPL6QqTp3Qo1NW5/edv//sjMsz8MFYT0Zmk4ZCdbL7k68l8gkPC6p4AGLa3L0vCWmPEAA8vSJt65rXHCtQ/LLHugY7d0xdoA3u7JF591/1qHUvI/EHzFadTM1tW1gvWS2fLoXqMrTVT9F1vsFY5bHKTOXmj0xHkM1NzbB26iiF6vIPfz78rpT8IoUp2BAtJRsy5gIkd4Rl8/OF+BZxfS4F404z0EfRnc8UC3vl66UdwuldzjDIpbAgJ0EHzM78b5q4SiU2dLgqw=="; // Replace with your key secret
+    private static final String keyId = "your skipcash key id"; // Replace with your key ID
+    private static final String keySecret = "your skipcash secret key"; // Replace with your key secret
 
     private ObjectMapper objectMapper = new ObjectMapper().setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY)
             .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);;
@@ -117,11 +117,11 @@ public class ApiController {
 
             // Prepare data payload
             DataPayload dataPayload = new DataPayload(
-                    "merchant.com.skipcash.appay",
-                    "https://skipcashpython.secretdemo.com",
-                    "https://skipcashpython.secretdemo.com",
+                    "your apple merchant id",
+                    "your domain with https://",
+                    "your domain with https://",
                     "web",
-                    "skipcashpython.secretdemo.com"
+                    "your domain without https://"
             );
 
             // Convert payload to JSON
@@ -161,12 +161,12 @@ public class ApiController {
 
            String resultHeader = "Uid=" + uid
                     + ",KeyId=" + keyId
-                    + ",Amount=" + "12"
-                    + ",FirstName=Pawan"
-                    + ",LastName=Garg"
-                    + ",Phone=12345678"
-                    + ",Email=pawan.garg@sufalamtech.com"
-                    + ",TransactionId=" + uid;
+                    + ",Amount=" + "Amount for payment"
+                    + ",FirstName=Customer First Name"
+                    + ",LastName=Customer Last Name"
+                    + ",Phone=Customer Phone Number"
+                    + ",Email=Customer Email"
+                    + ",TransactionId=" + "Order ID";
 
            byte[] hashBytes = sha256Hmac.doFinal(resultHeader.getBytes(StandardCharsets.UTF_8));
            String authorizationHeader = Base64.getEncoder().encodeToString(hashBytes);

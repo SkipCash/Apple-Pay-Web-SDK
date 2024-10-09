@@ -5,7 +5,7 @@
 $certificatePath = 'certificate.pem';
 $privateKeyPath = 'privateKey.pem';
 
-$p12Password = '';
+$p12Password = 'Your .p12 password';
 
 
 // Read the file and extract the certificate and private key

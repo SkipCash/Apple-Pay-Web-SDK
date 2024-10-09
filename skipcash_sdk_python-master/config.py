@@ -1,9 +1,9 @@
 validateSession = {
     "MerchantIdentifier": "apple merchant id",
-    "DomainName": "https://skipcashpython.secretdemo.com",
+    "DomainName": "https://your domain",
     "DisplayName": "",
     "Initiative": "web",
-    "InitiativeContext": "",
+    "InitiativeContext": "your domain without https://",
     "CertificatesPath": ('./certificate.pem'),
     "PrivateKeyPath": ('./privateKey.pem'),
     "CertificatePassword": "certificate password",
