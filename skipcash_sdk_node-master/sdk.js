@@ -13,6 +13,38 @@
       },
       direct: false,
     },
+
+    /**
+     * /
+     * @param {any} options
+     * sandbox : bool - true for TEST env, false for PROD env
+     * @param {any} onSuccess
+     * @param {any} onError
+     */
+    canPayWithApple: function (merchantIdentifier, onSuccess, onError) {
+      if (!window.ApplePaySession) {
+        if (onError != null) onError(1);
+        return;
+      }
+      if (!window.ApplePaySession.canMakePayments()) {
+        if (onError != null) onError(2);
+        return;
+      }
+
+      var promise =
+        window.ApplePaySession.canMakePaymentsWithActiveCard(
+          merchantIdentifier
+        );
+
+      promise.then(function (canMakePayments) {
+        if (canMakePayments) {
+          if (onSuccess != null) onSuccess();
+        } else {
+          if (onError != null) onError(3);
+        }
+      });
+    },
+
     /**
      * /
      * @param {any} options
